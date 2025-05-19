@@ -117,22 +117,45 @@ fun processImageProxy(
                     qrDetectado.value = true
 
                     codigoQR?.let { codigo ->
-                        viewModel.registrarMovimientoDesdeQR(codigo, tipoMovimiento) { exito ->
-                            val mensaje = if (exito) {
-                                "Movimiento registrado exitosamente"
-                            } else {
-                                "Error al registrar el movimiento"
-                            }
-                            navController.popBackStack("menu", inclusive = false)
+                        val partes = codigo.split("|")
+                        if (partes.size == 2) {
+                            val usuarioId = partes[0]
+                            val equipoId = partes[1]
 
+                            viewModel.registrarMovimientoDesdeQR(usuarioId, equipoId, tipoMovimiento) { respuesta ->
+                                coroutineScope.launch {
+                                    if (respuesta != null) {
+                                        val mensaje = """
+                                            ✅ Movimiento registrado:
+
+                                            👤 Usuario: ${respuesta.nombre}
+                                            🪪 Documento: ${respuesta.documento}
+                                            💻 Equipo: ${respuesta.equipo}
+                                            🎓 Carrera: ${respuesta.carrera}
+                                            📅 Fecha: ${respuesta.fechaHora}
+                                            🔁 Tipo: ${respuesta.tipoMovimiento}
+                                        """.trimIndent()
+
+                                        snackbarHostState.showSnackbar(mensaje)
+                                    } else {
+                                        snackbarHostState.showSnackbar("❌ Error al registrar el movimiento.")
+                                    }
+
+                                    navController.popBackStack("menu", inclusive = false)
+                                }
+                            }
+                        } else {
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar(mensaje)
+                                snackbarHostState.showSnackbar("⚠️ QR inválido")
+                                navController.popBackStack("menu", inclusive = false)
                             }
                         }
                     }
                 }
             }
-            .addOnFailureListener { Log.e("QRScanner", "Error escaneando: ${it.message}") }
+            .addOnFailureListener {
+                Log.e("QRScanner", "Error escaneando: ${it.message}")
+            }
             .addOnCompleteListener {
                 imageProxy.close()
             }

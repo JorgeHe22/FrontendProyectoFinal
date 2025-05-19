@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyectofinal.Model.DispositivoRequest
 import com.example.proyectofinal.Model.LoginRequest
+import com.example.proyectofinal.Model.MovimientoQRRequest
+import com.example.proyectofinal.Model.RegistroMovimientoResponse
 import com.example.proyectofinal.Model.UsuarioRequest
 import com.example.proyectofinal.Model.UsuarioResponse
 import com.example.proyectofinal.Network.RetrofitClient
@@ -86,25 +88,23 @@ class UsuarioViewModel : ViewModel() {
         }
     }
     fun registrarMovimientoDesdeQR(
-        datosEscaneados: String,
+        usuarioId: String,
+        equipoId: String,
         tipoMovimiento: String,
-        onResult: (Boolean) -> Unit
+        onResult: (RegistroMovimientoResponse?) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.apiService.registrarMovimientoDesdeQR(
-                    datosEscaneados = datosEscaneados,
-                    tipoMovimiento = tipoMovimiento
-                )
-
+                val request = MovimientoQRRequest(usuarioId, equipoId, tipoMovimiento)
+                val response = RetrofitClient.apiService.registrarMovimientoDesdeQR(request)
                 if (response.isSuccessful) {
-                    onResult(true)
+                    onResult(response.body())
                 } else {
-                    onResult(false)
+                    onResult(null)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                onResult(false)
+                Log.e("MovimientoQR", "Error: ${e.message}")
+                onResult(null)
             }
         }
     }

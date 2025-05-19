@@ -2,6 +2,8 @@ package com.example.proyectofinal.Network
 
 import com.example.proyectofinal.Model.DispositivoRequest
 import com.example.proyectofinal.Model.LoginRequest
+import com.example.proyectofinal.Model.MovimientoQRRequest
+import com.example.proyectofinal.Model.RegistroMovimientoResponse
 import com.example.proyectofinal.Model.UsuarioRequest
 import com.example.proyectofinal.Model.UsuarioResponse
 import retrofit2.Response
@@ -24,11 +26,10 @@ interface ApiService {
     @POST("api/equipos")
     suspend fun registrarDispositivo(@Body request: DispositivoRequest): Response<Void>
 
-    @POST("/api/movimientos/escanear-qr")
+    @POST("api/movimientos/escanear-qr")
     suspend fun registrarMovimientoDesdeQR(
-        @Query("datosEscaneados") datosEscaneados: String,
-        @Query("tipoMovimiento") tipoMovimiento: String
-    ): Response<Void>
+        @Body request: MovimientoQRRequest
+    ): Response<RegistroMovimientoResponse>
 
 
 }
