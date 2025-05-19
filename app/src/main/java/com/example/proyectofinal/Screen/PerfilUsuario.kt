@@ -19,6 +19,7 @@ import com.example.proyectofinal.Model.DispositivoRequest
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.utils.generarCodigoQR
 
 @Composable
@@ -49,14 +50,13 @@ fun PerfilUsuario(
     ) {
         Text("Carnet Estudiantil", style = MaterialTheme.typography.headlineMedium)
 
-        CarnetUsuario(usuario)
+        // ✅ Pasamos el viewModel a la función
+        CarnetUsuario(usuario, viewModel)
 
-        // Mostrar dispositivo si está disponible
         viewModel.dispositivoRegistrado?.let { dispositivo ->
             DispositivoCard(dispositivo)
         } ?: Text("No hay dispositivos registrados.")
 
-        // Botones
         Button(
             onClick = { navController.navigate("accionesEstudiante") },
             modifier = Modifier.fillMaxWidth()
@@ -74,7 +74,10 @@ fun PerfilUsuario(
 }
 
 @Composable
-fun CarnetUsuario(usuario: com.example.proyectofinal.Model.UsuarioResponse) {
+fun CarnetUsuario(
+    usuario: com.example.proyectofinal.Model.UsuarioResponse,
+    viewModel: UsuarioViewModel
+) {
     Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -96,7 +99,13 @@ fun CarnetUsuario(usuario: com.example.proyectofinal.Model.UsuarioResponse) {
                     .height(60.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            val qrBitmap = remember { generarCodigoQR(usuario.documento) }
+
+            // ✅ Extraer ID del dispositivo si existe
+            val equipoId = viewModel.dispositivoRegistrado?.id ?: ""
+
+            // ✅ Formato QR con usuarioId|equipoId
+            val qrTexto = "${usuario.id}|$equipoId"
+            val qrBitmap = remember(qrTexto) { generarCodigoQR(qrTexto) }
             val imageBitmap = remember(qrBitmap) { qrBitmap.asImageBitmap() }
 
             Spacer(modifier = Modifier.height(12.dp))
