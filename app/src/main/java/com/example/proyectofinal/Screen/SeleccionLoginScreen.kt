@@ -30,7 +30,7 @@ fun SeleccionLoginScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Imagen decorativa superior (puedes usar logo_universidad o un banner)
+        // Imagen decorativa
         Image(
             painter = painterResource(id = R.drawable.logo_universidad),
             contentDescription = "Logo Uniminuto",
