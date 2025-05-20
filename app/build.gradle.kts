@@ -73,7 +73,12 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
-
+    implementation ("androidx.camera:camera-camera2:1.2.0")
+    implementation ("androidx.camera:camera-lifecycle:1.2.0")
+    implementation ("androidx.camera:camera-view:1.2.0")
+    implementation ("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation ("com.google.accompanist:accompanist-permissions:0.31.3-beta")
+    implementation("androidx.compose.material:material-icons-extended")
 
 
 

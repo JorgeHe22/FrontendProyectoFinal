@@ -1,6 +1,7 @@
 package com.example.proyectofinal.Screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +19,7 @@ import com.example.proyectofinal.ViewModel.UsuarioViewModel
 import com.example.proyectofinal.Model.DispositivoRequest
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.proyectofinal.utils.generarCodigoQR
@@ -35,38 +37,53 @@ fun PerfilUsuario(
         return
     }
 
-    // Cargar el dispositivo cuando esta pantalla aparece
     LaunchedEffect(Unit) {
         viewModel.obtenerDispositivo(usuario.id)
     }
 
     Column(
         modifier = Modifier
+            .background(
+                brush = Brush.verticalGradient(
+                    listOf(Color(0xFFE6EEFF), Color.White)
+                )
+            )
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(32.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Carnet Estudiantil", style = MaterialTheme.typography.headlineMedium)
 
-        // ✅ Pasamos el viewModel a la función
         CarnetUsuario(usuario, viewModel)
+
+        Divider(thickness = 1.dp)
+
+        Text("Dispositivo Registrado", style = MaterialTheme.typography.headlineSmall)
 
         viewModel.dispositivoRegistrado?.let { dispositivo ->
             DispositivoCard(dispositivo)
         } ?: Text("No hay dispositivos registrados.")
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(
             onClick = { navController.navigate("accionesEstudiante") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = MaterialTheme.shapes.large
         ) {
             Text("Ver opciones")
         }
 
         OutlinedButton(
             onClick = { navController.popBackStack("menu", inclusive = false) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = MaterialTheme.shapes.large
         ) {
             Text("Cerrar sesión")
         }
@@ -79,79 +96,63 @@ fun CarnetUsuario(
     viewModel: UsuarioViewModel
 ) {
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
-            .border(2.dp, Color.Gray, RoundedCornerShape(16.dp)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            .wrapContentHeight(),
+        elevation = CardDefaults.cardElevation(10.dp)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.logo_universidad),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .height(60.dp)
-                    .align(Alignment.CenterHorizontally)
+                contentDescription = "Logo Uniminuto",
+                modifier = Modifier.height(50.dp)
             )
 
-            // ✅ Extraer ID del dispositivo si existe
             val equipoId = viewModel.dispositivoRegistrado?.id ?: ""
-
-            // ✅ Formato QR con usuarioId|equipoId
             val qrTexto = "${usuario.id}|$equipoId"
             val qrBitmap = remember(qrTexto) { generarCodigoQR(qrTexto) }
             val imageBitmap = remember(qrBitmap) { qrBitmap.asImageBitmap() }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("Código QR", style = MaterialTheme.typography.bodySmall)
-            Image(
-                bitmap = imageBitmap,
-                contentDescription = "Código QR del estudiante",
-                modifier = Modifier
-                    .size(150.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Código QR", style = MaterialTheme.typography.labelMedium)
+                Image(
+                    bitmap = imageBitmap,
+                    contentDescription = "Código QR del estudiante",
+                    modifier = Modifier.size(160.dp)
+                )
+            }
 
             Divider()
 
-            Text("Nombre: ${usuario.nombre}")
-            Text("Documento: ${usuario.documento}")
-            Text("Correo: ${usuario.correo}")
-            Text("Carrera: ${usuario.carrera}")
-            Text("Rol: ${usuario.rol}")
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text("Nombre: ${usuario.nombre}")
+                Text("Documento: ${usuario.documento}")
+                Text("Correo: ${usuario.correo}")
+                Text("Carrera: ${usuario.carrera}")
+                Text("Rol: ${usuario.rol}")
+            }
         }
     }
 }
-/*
-fun convertirLinkDriveADirecto(link: String): String {
-    val regex = Regex("""/d/([a-zA-Z0-9_-]+)""")
-    val match = regex.find(link)
-    val id = match?.groups?.get(1)?.value
-    return if (id != null) {
-        "https://drive.google.com/uc?export=view&id=$id"
-    } else {
-        link
-    }
-}
-*/
 
 @Composable
 fun DispositivoCard(dispositivo: DispositivoRequest) {
-    Text("Dispositivo Registrado", style = MaterialTheme.typography.headlineSmall)
-
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 200.dp)
-            .border(2.dp, Color(0xFF6200EE), RoundedCornerShape(16.dp)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            .wrapContentHeight(),
+        elevation = CardDefaults.cardElevation(10.dp)
     ) {
         Column(
             modifier = Modifier
@@ -164,14 +165,13 @@ fun DispositivoCard(dispositivo: DispositivoRequest) {
             Text("Serial: ${dispositivo.serial}")
 
             dispositivo.fotoUrl?.let { imageUrl ->
-
-                val urlPrueba ="https://drive.google.com/uc?export=view&id=1mcQCULQit979vM1h3O-8am1WsouNaq3V"
                 Image(
-                    painter = rememberAsyncImagePainter(urlPrueba),
+                    painter = rememberAsyncImagePainter(imageUrl),
                     contentDescription = "Imagen del dispositivo",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(160.dp)
+                        .height(180.dp)
+                        .padding(top = 8.dp)
                 )
             }
         }
