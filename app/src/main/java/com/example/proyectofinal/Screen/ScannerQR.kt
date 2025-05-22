@@ -145,7 +145,8 @@ fun processImageProxy(
                     if (partes.size == 2) {
                         val usuarioId = partes[0]
                         val equipoId = partes[1]
-                        viewModel.registrarMovimientoDesdeQR(usuarioId, equipoId, tipoMovimiento) { respuesta ->
+                        val guardiaId = "5c4518e5-abc1-4bf3-b803-5fefd4d6ab9d"
+                        viewModel.registrarMovimientoDesdeQR(usuarioId, equipoId, tipoMovimiento, guardiaId) { respuesta ->
                             coroutineScope.launch {
                                 val mensaje = respuesta?.let {
                                     """

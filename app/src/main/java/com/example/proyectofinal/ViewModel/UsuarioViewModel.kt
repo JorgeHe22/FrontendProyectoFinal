@@ -91,11 +91,12 @@ class UsuarioViewModel : ViewModel() {
         usuarioId: String,
         equipoId: String,
         tipoMovimiento: String,
+        guardiaId: String,
         onResult: (RegistroMovimientoResponse?) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                val request = MovimientoQRRequest(usuarioId, equipoId, tipoMovimiento)
+                val request = MovimientoQRRequest(usuarioId, equipoId, tipoMovimiento, guardiaId)
                 val response = RetrofitClient.apiService.registrarMovimientoDesdeQR(request)
                 if (response.isSuccessful) {
                     onResult(response.body())
