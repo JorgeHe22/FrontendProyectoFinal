@@ -151,12 +151,12 @@ fun processImageProxy(
                                 val mensaje = respuesta?.let {
                                     """
                                     ✅ Movimiento registrado:
-                                    Nombre: ${'$'}{it.nombre}
-                                    Documento: ${'$'}{it.documento}
-                                    Carrera: ${'$'}{it.carrera}
-                                    Equipo: ${'$'}{it.equipo}
-                                    Tipo: ${'$'}{it.tipoMovimiento}
-                                    Fecha: ${'$'}{it.fechaHora}
+                                    Nombre: ${it.nombre}
+                                    Documento: ${it.documento}
+                                    Carrera: ${it.carrera}
+                                    Equipo: ${it.equipo}
+                                    Tipo: ${it.tipoMovimiento}
+                                    Fecha: ${it.fechaHora}
                                     """.trimIndent()
                                 } ?: "❌ Error al registrar movimiento"
                                 snackbarHostState.showSnackbar(mensaje)
