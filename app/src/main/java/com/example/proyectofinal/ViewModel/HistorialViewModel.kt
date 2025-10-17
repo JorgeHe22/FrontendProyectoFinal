@@ -1,5 +1,6 @@
 package com.example.proyectofinal.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.proyectofinal.Model.HistorialResponse
@@ -17,17 +18,18 @@ class HistorialViewModel(private val api: ApiService) : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = api.getHistorial(usuarioId)
+                Log.d("HistorialDebug", "URL: ${response.raw().request.url}  CODE: ${response.code()}")
+
                 if (response.isSuccessful) {
-                    val data = response.body() ?: emptyList()
+                    val data = response.body().orEmpty()
+                    Log.d("HistorialDebug", "Items: ${data.size}")
                     _historial.value = data
-                    println("✅ Historial recibido (${data.size} items): $data")
                 } else {
-                    println("⚠️ Error en respuesta HTTP: ${response.code()}")
+                    Log.w("HistorialDebug", "HTTP ${response.code()}: ${response.errorBody()?.string()}")
                     _historial.value = emptyList()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                println("❌ Excepción en cargarHistorial: ${e.message}")
+                Log.e("HistorialDebug", "EX: ${e.message}", e)
                 _historial.value = emptyList()
             }
         }

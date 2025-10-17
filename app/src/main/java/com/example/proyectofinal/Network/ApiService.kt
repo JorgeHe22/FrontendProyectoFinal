@@ -32,7 +32,7 @@ interface ApiService {
         @Body request: MovimientoQRRequest
     ): Response<RegistroMovimientoResponse>
 
-    @GET("historial/{usuarioId}")
+    @GET("api/historial/{usuarioId}")
     suspend fun getHistorial(
         @Path("usuarioId") usuarioId: String
     ): Response<List<HistorialResponse>>
