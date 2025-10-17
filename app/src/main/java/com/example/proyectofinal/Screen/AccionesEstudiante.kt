@@ -14,15 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.proyectofinal.Model.EquipoRequest
+import com.example.proyectofinal.ViewModel.DispositivoViewModel
 import com.example.proyectofinal.ViewModel.UsuarioViewModel
 
 @Composable
 fun AccionesEstudiante(
     navController: NavController,
     viewModel: UsuarioViewModel
+
 ) {
     val usuario = viewModel.usuarioLogueado
+    val dispositivoViewModel: DispositivoViewModel = viewModel()
 
     if (usuario == null) {
         Text("No se encontró información del usuario.")
@@ -91,7 +96,10 @@ fun AccionesEstudiante(
 
             // Botón: Actualizar datos
             Button(
-                onClick = { /* navController.navigate("actualizarDatos") */ },
+                onClick = {
+                    // 🔹 Navegar a la pantalla de actualización
+                    navController.navigate("actualizarEquipo")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -100,7 +108,7 @@ fun AccionesEstudiante(
             ) {
                 Icon(Icons.Default.Edit, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Actualizar Mis Datos")
+                Text("Actualizar Equipo")
             }
 
             Divider(modifier = Modifier.padding(vertical = 8.dp))

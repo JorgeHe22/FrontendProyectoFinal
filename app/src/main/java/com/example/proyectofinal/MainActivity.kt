@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.proyectofinal.Screen.AccionesEstudiante
+import com.example.proyectofinal.Screen.ActualizarEquipoScreen
 import com.example.proyectofinal.Screen.EscanearQRScreen
 import com.example.proyectofinal.Screen.EscogerMovimientos
 import com.example.proyectofinal.Screen.HistorialScreen
@@ -109,6 +110,12 @@ class MainActivity : ComponentActivity() {
                             viewModel = historialViewModel,
                             navController = navController,
                             usuarioId = usuarioId
+                        )
+                    }
+                    composable("actualizarEquipo") {
+                        ActualizarEquipoScreen(
+                            navController = navController,
+                            dispositivoViewModel = viewModel()
                         )
                     }
 
