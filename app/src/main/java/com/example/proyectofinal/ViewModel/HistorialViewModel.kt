@@ -18,18 +18,13 @@ class HistorialViewModel(private val api: ApiService) : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = api.getHistorial(usuarioId)
-                Log.d("HistorialDebug", "URL: ${response.raw().request.url}  CODE: ${response.code()}")
-
                 if (response.isSuccessful) {
-                    val data = response.body().orEmpty()
-                    Log.d("HistorialDebug", "Items: ${data.size}")
-                    _historial.value = data
+                    _historial.value = response.body() ?: emptyList()
                 } else {
-                    Log.w("HistorialDebug", "HTTP ${response.code()}: ${response.errorBody()?.string()}")
                     _historial.value = emptyList()
                 }
             } catch (e: Exception) {
-                Log.e("HistorialDebug", "EX: ${e.message}", e)
+                e.printStackTrace()
                 _historial.value = emptyList()
             }
         }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,42 +21,29 @@ fun HistorialScreen(
     viewModel: HistorialViewModel,
     usuarioId: String
 ) {
-    val historial by viewModel.historial.collectAsState(initial = emptyList())
+    val historial by viewModel.historial.collectAsState()
 
-    // Cargar historial una sola vez
-    LaunchedEffect(usuarioId) {
+    LaunchedEffect(Unit) {
         viewModel.cargarHistorial(usuarioId)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF2F2F2))
-            .padding(16.dp)
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)
     ) {
         Text(
             text = "Historial de movimientos",
-            fontWeight = FontWeight.Bold,
-            fontSize = 22.sp,
-            modifier = Modifier
-                .padding(bottom = 12.dp)
-                .align(Alignment.CenterHorizontally)
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 12.dp)
         )
 
         if (historial.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "No hay movimientos registrados.",
-                    fontSize = 16.sp,
-                    color = Color.Gray
-                )
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("No hay movimientos registrados.")
             }
         } else {
             LazyColumn {
-                items(historial, key = { it.id }) { item ->
+                items(historial) { item ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -63,10 +51,13 @@ fun HistorialScreen(
                         elevation = CardDefaults.cardElevation(6.dp)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Tipo: ${item.tipoMovimiento}", fontWeight = FontWeight.SemiBold)
-                            Text("Observación: ${item.observacion ?: "Sin descripción"}")
-                            Text("Equipo: ${item.equipo.marca ?: "Desconocido"} ${item.equipo.modelo ?: ""}")
-                            Text("Fecha: ${item.fechaHora ?: "Sin fecha"}")
+                            Text("Tipo: ${item.tipoMovimiento}", fontWeight = FontWeight.Bold)
+                            Text("Fecha: ${item.fechaHora?.replace("T", " ")?.substring(0, 16) ?: "Sin fecha"}")
+                            Text("Equipo: ${item.equipo.marca} ${item.equipo.modelo}")
+                            Text("Serial: ${item.equipo.serial}")
+                            item.observacion?.let {
+                                Text("Obs: $it", fontStyle = FontStyle.Italic)
+                            }
                         }
                     }
                 }

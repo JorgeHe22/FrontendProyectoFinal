@@ -131,6 +131,9 @@ fun processImageProxy(
     navController: NavController,
     coroutineScope: CoroutineScope
 ) {
+    // 🔒 Bandera para evitar múltiples registros por un solo escaneo
+    var yaProcesado = false
+
     val mediaImage = imageProxy.image
     if (mediaImage != null) {
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
@@ -138,15 +141,24 @@ fun processImageProxy(
 
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
-                if (barcodes.isNotEmpty()) {
+                if (barcodes.isNotEmpty() && !yaProcesado) { // 👈 Evita repeticiones
+                    yaProcesado = true // 🔐 Bloquea escaneos adicionales
+
                     onQrDetected(true)
                     val codigoQR = barcodes.first().rawValue ?: ""
                     val partes = codigoQR.split("|")
+
                     if (partes.size == 2) {
                         val usuarioId = partes[0]
                         val equipoId = partes[1]
                         val guardiaId = "5c4518e5-abc1-4bf3-b803-5fefd4d6ab9d"
-                        viewModel.registrarMovimientoDesdeQR(usuarioId, equipoId, tipoMovimiento, guardiaId) { respuesta ->
+
+                        viewModel.registrarMovimientoDesdeQR(
+                            usuarioId,
+                            equipoId,
+                            tipoMovimiento,
+                            guardiaId
+                        ) { respuesta ->
                             coroutineScope.launch {
                                 val mensaje = respuesta?.let {
                                     """
@@ -159,6 +171,7 @@ fun processImageProxy(
                                     Fecha: ${it.fechaHora}
                                     """.trimIndent()
                                 } ?: "❌ Error al registrar movimiento"
+
                                 snackbarHostState.showSnackbar(mensaje)
                                 delay(600)
                                 navController.popBackStack("menu", false)
@@ -174,7 +187,7 @@ fun processImageProxy(
                 }
             }
             .addOnFailureListener {
-                Log.e("QRScanner", "Error escaneando: ${'$'}{it.message}")
+                Log.e("QRScanner", "Error escaneando: ${it.message}")
             }
             .addOnCompleteListener {
                 imageProxy.close()
