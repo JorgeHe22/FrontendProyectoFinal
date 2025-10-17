@@ -122,6 +122,9 @@ fun EscanearQRScreen(
     }
 }
 
+private var ultimaLecturaExitosa: Long = 0
+private var escaneoBloqueado = false
+
 fun processImageProxy(
     imageProxy: ImageProxy,
     tipoMovimiento: String,
@@ -131,18 +134,21 @@ fun processImageProxy(
     navController: NavController,
     coroutineScope: CoroutineScope
 ) {
-    // 🔒 Bandera para evitar múltiples registros por un solo escaneo
-    var yaProcesado = false
-
     val mediaImage = imageProxy.image
-    if (mediaImage != null) {
+    if (mediaImage != null && !escaneoBloqueado) { // 👈 evita procesar si ya se bloqueó
         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
         val scanner = BarcodeScanning.getClient()
 
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
-                if (barcodes.isNotEmpty() && !yaProcesado) { // 👈 Evita repeticiones
-                    yaProcesado = true // 🔐 Bloquea escaneos adicionales
+                if (barcodes.isNotEmpty()) {
+                    val ahora = System.currentTimeMillis()
+                    // 👇 Evita reacciones múltiples por frames consecutivos
+                    if (ahora - ultimaLecturaExitosa < 2000) {
+                        return@addOnSuccessListener
+                    }
+                    ultimaLecturaExitosa = ahora
+                    escaneoBloqueado = true // 🔒 Bloquea el escáner completamente
 
                     onQrDetected(true)
                     val codigoQR = barcodes.first().rawValue ?: ""
@@ -171,10 +177,10 @@ fun processImageProxy(
                                     Fecha: ${it.fechaHora}
                                     """.trimIndent()
                                 } ?: "❌ Error al registrar movimiento"
-
                                 snackbarHostState.showSnackbar(mensaje)
-                                delay(600)
+                                delay(1200) // pequeño delay
                                 navController.popBackStack("menu", false)
+                                escaneoBloqueado = false // 🔓 libera al volver
                             }
                         }
                     } else {
@@ -182,6 +188,7 @@ fun processImageProxy(
                             snackbarHostState.showSnackbar("⚠️ QR inválido")
                             delay(600)
                             navController.popBackStack("menu", false)
+                            escaneoBloqueado = false
                         }
                     }
                 }
