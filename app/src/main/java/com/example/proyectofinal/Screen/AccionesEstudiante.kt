@@ -1,5 +1,6 @@
 package com.example.proyectofinal.Screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -75,6 +76,7 @@ fun AccionesEstudiante(
                 onClick = {
                     val usuarioId = viewModel.usuarioLogueado?.id
                     navController.navigate("historial/$usuarioId")
+                    Log.d("HistorialDebug", "Enviando ID: $usuarioId")
                 },
                 modifier = Modifier
                     .fillMaxWidth()

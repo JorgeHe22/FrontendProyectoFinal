@@ -18,12 +18,16 @@ class HistorialViewModel(private val api: ApiService) : ViewModel() {
             try {
                 val response = api.getHistorial(usuarioId)
                 if (response.isSuccessful) {
-                    _historial.value = response.body() ?: emptyList()
+                    val data = response.body() ?: emptyList()
+                    _historial.value = data
+                    println("✅ Historial recibido (${data.size} items): $data")
                 } else {
+                    println("⚠️ Error en respuesta HTTP: ${response.code()}")
                     _historial.value = emptyList()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                println("❌ Excepción en cargarHistorial: ${e.message}")
                 _historial.value = emptyList()
             }
         }
