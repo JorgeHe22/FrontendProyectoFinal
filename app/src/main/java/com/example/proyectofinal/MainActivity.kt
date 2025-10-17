@@ -6,10 +6,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -82,17 +84,27 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(
                         route = "historial/{usuarioId}",
-                        arguments = listOf(navArgument("usuarioId") { defaultValue = "" })
+                        arguments = listOf(navArgument("usuarioId") { type = NavType.StringType })
                     ) { backStackEntry ->
                         val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
-                        // Factory + ViewModel usando RetrofitClient.apiService
+
                         val factory = remember {
                             com.example.proyectofinal.ViewModel.HistorialVMFactory(
                                 com.example.proyectofinal.Network.RetrofitClient.apiService
                             )
                         }
+
                         val historialViewModel: com.example.proyectofinal.ViewModel.HistorialViewModel =
-                            androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                            viewModel(factory = factory)
+
+                        // ✅ Cargar historial solo cuando haya usuarioId
+                        LaunchedEffect(usuarioId) {
+                            if (usuarioId.isNotEmpty()) {
+                                historialViewModel.cargarHistorial(usuarioId)
+                            }
+                        }
+
+                        // ✅ Llama la pantalla sin usuarioId, solo el ViewModel y navController
                         com.example.proyectofinal.Screen.HistorialScreen(
                             viewModel = historialViewModel,
                             navController = navController,
