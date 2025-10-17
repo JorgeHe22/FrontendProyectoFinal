@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.proyectofinal.ViewModel.HistorialViewModel
+import com.example.proyectofinal.utils.formatearFecha
 
 
 @Composable
@@ -96,7 +97,7 @@ fun HistorialScreen(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text("Tipo: ${item.tipoMovimiento}", fontWeight = FontWeight.Bold)
-                            Text("Fecha: ${item.fechaHora ?: "Sin fecha"}")
+                            Text("Fecha: ${formatearFecha(item.fechaHora)}")
                             Text("Equipo: ${item.equipo.marca ?: "Desconocido"} ${item.equipo.modelo ?: ""}")
                             Text("Serial: ${item.equipo.numeroSerie ?: "N/A"}")
                         }

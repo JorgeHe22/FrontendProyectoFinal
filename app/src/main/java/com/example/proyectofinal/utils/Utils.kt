@@ -7,6 +7,11 @@ import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 val PermissionState.hasPermission: Boolean
@@ -34,6 +39,20 @@ fun generarCodigoQR(texto: String, size: Int = 512): Bitmap {
     }
 
     return bitmap
+}
+fun formatearFecha(fechaIso: String?): String {
+    if (fechaIso.isNullOrBlank()) return "Sin fecha"
+    return try {
+        // El formato original que viene del backend
+        val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+        val fecha = parser.parse(fechaIso)
+
+        // Formato bonito para mostrar
+        val formatoBonito = SimpleDateFormat("dd 'de' MMMM 'de' yyyy, hh:mm a", Locale("es", "CO"))
+        formatoBonito.format(fecha!!)
+    } catch (e: Exception) {
+        fechaIso // Si falla, muestra el valor original
+    }
 }
 
 
