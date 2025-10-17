@@ -36,6 +36,13 @@ fun EscanearQRScreen(
     tipoMovimiento: String,
     viewModel: UsuarioViewModel = viewModel()
 ) {
+
+    LaunchedEffect(Unit) {
+        escaneoBloqueado = false
+        ultimaLecturaExitosa = 0
+        Log.d("ScannerQR", "🚀 Escáner reiniciado correctamente")
+    }
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
