@@ -95,6 +95,7 @@ class MainActivity : ComponentActivity() {
                             androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
                         com.example.proyectofinal.Screen.HistorialScreen(
                             viewModel = historialViewModel,
+                            navController = navController,
                             usuarioId = usuarioId
                         )
                     }

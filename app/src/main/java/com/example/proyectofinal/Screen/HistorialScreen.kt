@@ -21,7 +21,8 @@ import com.example.proyectofinal.ViewModel.HistorialViewModel
 @Composable
 fun HistorialScreen(
     viewModel: HistorialViewModel,
-    navController: NavController
+    navController: NavController,
+    usuarioId: String
 ) {
     val historial by viewModel.historial.collectAsState()
     var filtroSeleccionado by remember { mutableStateOf("Todos") }
