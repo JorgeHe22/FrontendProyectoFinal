@@ -4,16 +4,13 @@ data class HistorialRequest(
     val tipoMovimiento: String,
     val observacion: String?,
     val usuario: UsuarioHistorial,
-    val equipo: EquipoHistorial
+    val equipo: EquipoHistorialResponse
 )
 
 data class HistorialResponse(
-    val id: String,
     val tipoMovimiento: String,
     val fechaHora: String?,
-    val observacion: String?,
-    val usuario: UsuarioHistorial,
-    val equipo: EquipoHistorial
+    val equipo: EquipoHistorialResponse
 )
 
 data class UsuarioHistorial(
@@ -25,9 +22,8 @@ data class UsuarioHistorial(
     val rol: String
 )
 
-data class EquipoHistorial(
-    val id: String,
-    val marca: String,
-    val modelo: String,
-    val serial: String
+data class EquipoHistorialResponse(
+    val marca: String?,
+    val modelo: String?,
+    val numeroSerie: String?
 )

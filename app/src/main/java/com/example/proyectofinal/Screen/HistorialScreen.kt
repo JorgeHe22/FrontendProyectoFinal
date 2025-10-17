@@ -96,9 +96,9 @@ fun HistorialScreen(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text("Tipo: ${item.tipoMovimiento}", fontWeight = FontWeight.Bold)
-                            Text("Fecha: ${item.fechaHora}")
-                            Text("Equipo: ${item.equipo}")
-                            Text("Serial: ${item.equipo.serial}")
+                            Text("Fecha: ${item.fechaHora ?: "Sin fecha"}")
+                            Text("Equipo: ${item.equipo.marca ?: "Desconocido"} ${item.equipo.modelo ?: ""}")
+                            Text("Serial: ${item.equipo.numeroSerie ?: "N/A"}")
                         }
                     }
                 }

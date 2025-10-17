@@ -148,16 +148,9 @@ fun processImageProxy(
 
         scanner.process(image)
             .addOnSuccessListener { barcodes ->
-                if (barcodes.isNotEmpty()) {
-                    val ahora = System.currentTimeMillis()
-
-                    // 👇 Evita múltiples lecturas por frames consecutivos
-                    if (ahora - ultimaLecturaExitosa < 2000) {
-                        return@addOnSuccessListener
-                    }
-
-                    ultimaLecturaExitosa = ahora
-                    escaneoBloqueado = true // 🔒 Bloquea el escáner mientras se procesa
+                if (barcodes.isNotEmpty() && !escaneoBloqueado) {
+                    escaneoBloqueado = true
+                    ultimaLecturaExitosa = System.currentTimeMillis()
 
                     onQrDetected(true)
                     val codigoQR = barcodes.first().rawValue ?: ""
@@ -177,47 +170,45 @@ fun processImageProxy(
                             coroutineScope.launch {
                                 val mensaje = respuesta?.let {
                                     """
-                                    ✅ Movimiento registrado:
-                                    Nombre: ${it.nombre}
-                                    Documento: ${it.documento}
-                                    Carrera: ${it.carrera}
-                                    Equipo: ${it.equipo}
-                                    Tipo: ${it.tipoMovimiento}
-                                    Fecha: ${it.fechaHora}
-                                    """.trimIndent()
+                            ✅ Movimiento registrado:
+                            Nombre: ${it.nombre}
+                            Documento: ${it.documento}
+                            Carrera: ${it.carrera}
+                            Equipo: ${it.equipo}
+                            Tipo: ${it.tipoMovimiento}
+                            Fecha: ${it.fechaHora}
+                            """.trimIndent()
                                 } ?: "❌ Error al registrar movimiento"
 
                                 snackbarHostState.showSnackbar(mensaje)
 
-                                // ✅ Espera un poco antes de permitir otro escaneo
+                                // 🟢 Espera 1.5 segundos y regresa automáticamente
                                 delay(1500)
-                                escaneoBloqueado = false
-
-                                // ✅ En lugar de cerrar sesión, solo vuelve una pantalla
-                                if (navController.currentDestination?.route != "accionesGuardia") {
-                                    navController.navigate("accionesGuardia") {
-                                        popUpTo("accionesGuardia") { inclusive = true }
-                                    }
+                                navController.navigate("escogerMovimientos") {
+                                    popUpTo("escogerMovimientos") { inclusive = true }
                                 }
+
+                                // 🟢 Desbloquea el escáner después del regreso
+                                delay(1000)
+                                escaneoBloqueado = false
                             }
                         }
                     } else {
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar("⚠️ QR inválido")
-                            delay(1500)
-                            escaneoBloqueado = false // 🔓 libera incluso en error
+                            delay(1000)
+                            navController.navigate("escogerMovimientos") {
+                                popUpTo("escogerMovimientos") { inclusive = true }
+                            }
                         }
                     }
                 }
             }
             .addOnFailureListener {
                 Log.e("QRScanner", "Error escaneando: ${it.message}")
-                escaneoBloqueado = false // 🔓 evita quedarse bloqueado
             }
             .addOnCompleteListener {
                 imageProxy.close()
             }
-    } else {
-        imageProxy.close()
     }
 }
