@@ -184,8 +184,8 @@ fun processImageProxy(
 
                                 // 🟢 Espera 1.5 segundos y regresa automáticamente
                                 delay(1500)
-                                navController.navigate("escogerMovimientos") {
-                                    popUpTo("escogerMovimientos") { inclusive = true }
+                                navController.navigate("escogerMovimiento") {
+                                    popUpTo("escogerMovimiento") { inclusive = true }
                                 }
 
                                 // 🟢 Desbloquea el escáner después del regreso
