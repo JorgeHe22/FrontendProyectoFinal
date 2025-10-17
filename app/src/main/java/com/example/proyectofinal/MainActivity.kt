@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,8 +85,15 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("usuarioId") { defaultValue = "" })
                     ) { backStackEntry ->
                         val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
-                        val historialViewModel: HistorialViewModel = viewModel()
-                        HistorialScreen(
+                        // Factory + ViewModel usando RetrofitClient.apiService
+                        val factory = remember {
+                            com.example.proyectofinal.ViewModel.HistorialVMFactory(
+                                com.example.proyectofinal.Network.RetrofitClient.apiService
+                            )
+                        }
+                        val historialViewModel: com.example.proyectofinal.ViewModel.HistorialViewModel =
+                            androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+                        com.example.proyectofinal.Screen.HistorialScreen(
                             viewModel = historialViewModel,
                             usuarioId = usuarioId
                         )
