@@ -72,7 +72,10 @@ fun AccionesEstudiante(
 
             // Botón: Ver historial (por ejemplo, de ingresos/salidas)
             Button(
-                onClick = { /* Aquí podrías poner navController.navigate("historial") */ },
+                onClick = {
+                    val usuarioId = viewModel.usuarioLogueado?.id
+                    navController.navigate("historial/$usuarioId")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

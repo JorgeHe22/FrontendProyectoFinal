@@ -1,6 +1,7 @@
 package com.example.proyectofinal.Network
 
 import com.example.proyectofinal.Model.DispositivoRequest
+import com.example.proyectofinal.Model.HistorialResponse
 import com.example.proyectofinal.Model.LoginRequest
 import com.example.proyectofinal.Model.MovimientoQRRequest
 import com.example.proyectofinal.Model.RegistroMovimientoResponse
@@ -30,6 +31,17 @@ interface ApiService {
     suspend fun registrarMovimientoDesdeQR(
         @Body request: MovimientoQRRequest
     ): Response<RegistroMovimientoResponse>
+
+    @GET("historial/{usuarioId}")
+    suspend fun getHistorial(
+        @Path("usuarioId") usuarioId: String
+    ): Response<List<HistorialResponse>>
+
+    @GET("historial/{usuarioId}/tipo/{tipo}")
+    suspend fun getHistorialPorTipo(
+        @Path("usuarioId") usuarioId: String,
+        @Path("tipo") tipo: String
+    ): Response<List<HistorialResponse>>
 
 
 }

@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.example.proyectofinal.Screen.AccionesEstudiante
 import com.example.proyectofinal.Screen.EscanearQRScreen
 import com.example.proyectofinal.Screen.EscogerMovimientos
+import com.example.proyectofinal.Screen.HistorialScreen
 import com.example.proyectofinal.Screen.LoginEstudiantes
 import com.example.proyectofinal.Screen.LoginGuardia
 import com.example.proyectofinal.Screen.PantallaRegistroUsuario
@@ -23,6 +24,7 @@ import com.example.proyectofinal.Screen.PerfilUsuario
 import com.example.proyectofinal.Screen.RegistroDispositivo
 import com.example.proyectofinal.Screen.ScreenA
 import com.example.proyectofinal.Screen.SeleccionLoginScreen
+import com.example.proyectofinal.ViewModel.HistorialViewModel
 import com.example.proyectofinal.ViewModel.UsuarioViewModel
 import com.example.proyectofinal.ui.theme.ProyectoFinalTheme
 
@@ -76,6 +78,17 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val tipo = backStackEntry.arguments?.getString("tipo") ?: "entrada"
                         EscanearQRScreen(navController, tipo)
+                    }
+                    composable(
+                        route = "historial/{usuarioId}",
+                        arguments = listOf(navArgument("usuarioId") { defaultValue = "" })
+                    ) { backStackEntry ->
+                        val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+                        val historialViewModel: HistorialViewModel = viewModel()
+                        HistorialScreen(
+                            viewModel = historialViewModel,
+                            usuarioId = usuarioId
+                        )
                     }
 
 
