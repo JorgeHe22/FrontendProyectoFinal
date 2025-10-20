@@ -1,18 +1,25 @@
 package com.example.proyectofinal.Screen
 
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.proyectofinal.Model.EquipoRequest
+import coil.compose.rememberAsyncImagePainter
+import com.example.proyectofinal.Model.DispositivoRequest
 import com.example.proyectofinal.ViewModel.DispositivoViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,133 +27,204 @@ fun ActualizarEquipoScreen(
     navController: NavController,
     dispositivoViewModel: DispositivoViewModel
 ) {
-    // 🧩 Campos controlados por estado Compose
-    var marca by remember { mutableStateOf(TextFieldValue("")) }
-    var modelo by remember { mutableStateOf(TextFieldValue("")) }
-    var serial by remember { mutableStateOf(TextFieldValue("")) }
-    var fotoUrl by remember { mutableStateOf(TextFieldValue("")) }
+    // 🧩 Obtenemos el equipo actual del ViewModel
+    val equipoActual by dispositivoViewModel.equipoActualFlow.collectAsState()
 
-    // 🧠 Mensaje del ViewModel (Flow → Compose)
-    val mensajeActualizacion by dispositivoViewModel.mensajeActualizacion.collectAsState(initial = "")
+    // 🖋️ Campos editables
+    var marca by remember { mutableStateOf(equipoActual?.marca ?: "") }
+    var modelo by remember { mutableStateOf(equipoActual?.modelo ?: "") }
+    var serial by remember { mutableStateOf(equipoActual?.serial ?: "") }
+    var fotoUrl by remember { mutableStateOf(equipoActual?.fotoUrl ?: "") }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Actualizar Equipo",
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            )
-        }
-    ) { paddingValues ->
+    // 🧠 Estado del mensaje
+    val mensaje by dispositivoViewModel.mensajeActualizacion.collectAsState(initial = "")
+    var mostrarDialogoExito by remember { mutableStateOf(false) }
 
-        Column(
+    Scaffold { padding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(Color(0xFFE6EEFF), Color.White)
+                    )
+                )
+                .padding(padding)
         ) {
-            // 🖋️ Campos de texto estilizados
-            OutlinedTextField(
-                value = marca,
-                onValueChange = { marca = it },
-                label = { Text("Marca del equipo") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            )
-
-            OutlinedTextField(
-                value = modelo,
-                onValueChange = { modelo = it },
-                label = { Text("Modelo del equipo") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            )
-
-            OutlinedTextField(
-                value = serial,
-                onValueChange = { serial = it },
-                label = { Text("Número de serie") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            )
-
-            OutlinedTextField(
-                value = fotoUrl,
-                onValueChange = { fotoUrl = it },
-                label = { Text("URL de la foto del equipo") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            )
-
-            // 🟢 Botón para actualizar
-            Button(
-                onClick = {
-                    val equipoActualizado = EquipoRequest(
-                        marca = marca.text,
-                        modelo = modelo.text,
-                        serial = serial.text,
-                        foto = fotoUrl.text
-                    )
-                    dispositivoViewModel.actualizarEquipo(
-                        id = "cc7462b1-9023-4905-a59b-55de7752d202", // ⚠️ Reemplaza con el ID real del equipo del estudiante
-                        equipo = equipoActualizado
-                    )
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                    .align(Alignment.Center)
+                    .padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(Icons.Default.Edit, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Guardar cambios", style = MaterialTheme.typography.bodyLarge)
-            }
-
-            // 🟣 Mensaje de estado
-            if (mensajeActualizacion.isNotEmpty()) {
-                val esExitoso = mensajeActualizacion.startsWith("✅")
-                val color = if (esExitoso)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.error
-
+                // 🟦 Título
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = if (esExitoso) Icons.Default.Check else Icons.Default.Edit,
+                        imageVector = Icons.Default.Edit,
                         contentDescription = null,
-                        tint = color
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = mensajeActualizacion,
-                        color = color,
+                        text = "Actualizar Equipo",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                }
+
+                // 🧾 Tarjeta
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = marca,
+                            onValueChange = { marca = it },
+                            label = { Text("Marca del equipo") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = modelo,
+                            onValueChange = { modelo = it },
+                            label = { Text("Modelo") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = serial,
+                            onValueChange = { serial = it },
+                            label = { Text("Número de serie") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = fotoUrl,
+                            onValueChange = { fotoUrl = it },
+                            label = { Text("URL de la foto") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        if (fotoUrl.trim().startsWith("http")) {
+                            Text(
+                                text = "Vista previa de la imagen",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Image(
+                                painter = rememberAsyncImagePainter(model = fotoUrl.trim()),
+                                contentDescription = "Vista previa imagen",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(160.dp)
+                                    .padding(top = 8.dp)
+                            )
+                        }
+                    }
+                }
+
+                // 🟢 Botón Guardar cambios
+                Button(
+                    onClick = {
+                        println("🖱 CLICK Guardar cambios")
+
+                        val base = equipoActual
+                        if (base == null) {
+                            println("❌ equipoActual NULL, no puedo hacer PUT")
+                            return@Button
+                        }
+                        if (base.id == null) {
+                            println("❌ El equipo no tiene id, no puedo hacer PUT")
+                            return@Button
+                        }
+
+                        val actualizado = DispositivoRequest(
+                            id = base.id,
+                            marca = marca.trim(),
+                            modelo = modelo.trim(),
+                            serial = serial.trim(),
+                            fotoUrl = fotoUrl.trim(),
+                            usuarioId = base.usuarioId
+                        )
+
+                        println("⏩ PUT id=${base.id} usuarioId=${base.usuarioId} datos=${actualizado.marca}/${actualizado.modelo}")
+                        dispositivoViewModel.actualizarEquipo(base.id.toString(), actualizado)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.large,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                ) {
+                    Text("Guardar cambios")
+                }
+
+                // 🔙 Botón Cancelar
+                OutlinedButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    Text("Cancelar")
+                }
+
+                // 📢 Mensaje de estado
+                if (mensaje.isNotEmpty()) {
+                    Text(
+                        text = mensaje,
+                        color = if (mensaje.startsWith("✅")) Color(0xFF4CAF50) else Color.Red,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
 
-            // 🔙 Botón para volver
-            OutlinedButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = MaterialTheme.shapes.large
-            ) {
-                Text("Volver", style = MaterialTheme.typography.bodyLarge)
+            // 🟢 Diálogo de éxito
+            if (mensaje.startsWith("✅")) {
+                LaunchedEffect(mensaje) {
+                    delay(800)
+                    mostrarDialogoExito = true
+                }
+            }
+
+            if (mostrarDialogoExito) {
+                AlertDialog(
+                    onDismissRequest = { mostrarDialogoExito = false },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            mostrarDialogoExito = false
+                            navController.popBackStack("accionesEstudiante", inclusive = false)
+                        }) {
+                            Text("Aceptar")
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(36.dp)
+                        )
+                    },
+                    title = { Text("¡Actualización exitosa!") },
+                    text = { Text("Los datos del equipo se actualizaron correctamente.") }
+                )
             }
         }
     }
 }
+

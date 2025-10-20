@@ -9,5 +9,5 @@ data class DispositivoRequest(
     val modelo: String,
     val serial: String,
     val fotoUrl: String,
-    @SerializedName("usuario_id") val usuarioId: String
+    @SerializedName("usuario_id") val usuarioId: String? = null
 )

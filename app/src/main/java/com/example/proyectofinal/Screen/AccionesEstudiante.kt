@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -17,17 +18,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.proyectofinal.Model.EquipoRequest
+import com.example.proyectofinal.Network.RetrofitClient
+import com.example.proyectofinal.ViewModel.DispositivoVMFactory
 import com.example.proyectofinal.ViewModel.DispositivoViewModel
 import com.example.proyectofinal.ViewModel.UsuarioViewModel
+
+
 
 @Composable
 fun AccionesEstudiante(
     navController: NavController,
-    viewModel: UsuarioViewModel
-
+    viewModel: UsuarioViewModel,
+    dispositivoViewModel: DispositivoViewModel // ✅ Este viene desde MainActivity
 ) {
     val usuario = viewModel.usuarioLogueado
-    val dispositivoViewModel: DispositivoViewModel = viewModel()
 
     if (usuario == null) {
         Text("No se encontró información del usuario.")
@@ -49,20 +53,17 @@ fun AccionesEstudiante(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Saludo principal
             Text(
                 text = "👋 Hola, ${usuario.nombre}",
                 style = MaterialTheme.typography.headlineSmall
             )
 
-            // Subtítulo con guía
             Text(
                 text = "Selecciona una opción para continuar",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Botón: Registrar dispositivo
             Button(
                 onClick = { navController.navigate("registroDispositivo") },
                 modifier = Modifier
@@ -76,7 +77,6 @@ fun AccionesEstudiante(
                 Text("Registrar Dispositivo")
             }
 
-            // Botón: Ver historial (por ejemplo, de ingresos/salidas)
             Button(
                 onClick = {
                     val usuarioId = viewModel.usuarioLogueado?.id
@@ -94,17 +94,24 @@ fun AccionesEstudiante(
                 Text("Ver Historial de Ingresos")
             }
 
-            // Botón: Actualizar datos
+            // 🟩 Botón: Actualizar datos
             Button(
                 onClick = {
-                    // 🔹 Navegar a la pantalla de actualización
+                    val disp = viewModel.dispositivoRegistrado
+                    if (disp == null) {
+                        println("⚠️ No hay dispositivoRegistrado en UsuarioViewModel")
+                        return@Button
+                    }
+
+                    println("📦 Seteando equipo actual -> ${disp.id}")
+                    dispositivoViewModel.setEquipoActual(disp)
+
                     navController.navigate("actualizarEquipo")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                shape = MaterialTheme.shapes.large
             ) {
                 Icon(Icons.Default.Edit, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
@@ -113,7 +120,6 @@ fun AccionesEstudiante(
 
             Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Botón: Volver
             OutlinedButton(
                 onClick = { navController.popBackStack("perfilUsuario", inclusive = false) },
                 modifier = Modifier

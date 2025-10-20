@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.proyectofinal.Network.RetrofitClient
 import com.example.proyectofinal.Screen.AccionesEstudiante
 import com.example.proyectofinal.Screen.ActualizarEquipoScreen
 import com.example.proyectofinal.Screen.EscanearQRScreen
@@ -28,6 +29,8 @@ import com.example.proyectofinal.Screen.PerfilUsuario
 import com.example.proyectofinal.Screen.RegistroDispositivo
 import com.example.proyectofinal.Screen.ScreenA
 import com.example.proyectofinal.Screen.SeleccionLoginScreen
+import com.example.proyectofinal.ViewModel.DispositivoVMFactory
+import com.example.proyectofinal.ViewModel.DispositivoViewModel
 import com.example.proyectofinal.ViewModel.HistorialViewModel
 import com.example.proyectofinal.ViewModel.UsuarioViewModel
 import com.example.proyectofinal.ui.theme.ProyectoFinalTheme
@@ -41,6 +44,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 val usuarioViewModel: UsuarioViewModel = viewModel()
+                val dispositivoFactory = remember { DispositivoVMFactory(RetrofitClient.apiService) }
+                val dispositivoViewModel: DispositivoViewModel = viewModel(factory = dispositivoFactory)
 
                 NavHost(navController = navController, startDestination = "menu") {
                     composable("menu") {
@@ -65,10 +70,18 @@ class MainActivity : ComponentActivity() {
                         LoginGuardia(navController, usuarioViewModel)
                     }
                     composable("perfilUsuario") {
-                        PerfilUsuario(navController, usuarioViewModel)
+                        PerfilUsuario(
+                            navController = navController,
+                            viewModel = usuarioViewModel,
+                            dispositivoViewModel = dispositivoViewModel
+                        )
                     }
                     composable("accionesEstudiante") {
-                        AccionesEstudiante(navController, usuarioViewModel)
+                        AccionesEstudiante(
+                            navController = navController,
+                            viewModel = usuarioViewModel,
+                            dispositivoViewModel = dispositivoViewModel
+                        )
                     }
                     composable("registroDispositivo") {
                         RegistroDispositivo(navController, usuarioViewModel)
@@ -115,10 +128,9 @@ class MainActivity : ComponentActivity() {
                     composable("actualizarEquipo") {
                         ActualizarEquipoScreen(
                             navController = navController,
-                            dispositivoViewModel = viewModel()
+                            dispositivoViewModel = dispositivoViewModel
                         )
                     }
-
 
                 }
             }

@@ -2,32 +2,51 @@ package com.example.proyectofinal.Screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.proyectofinal.R
-import com.example.proyectofinal.ViewModel.UsuarioViewModel
 import com.example.proyectofinal.Model.DispositivoRequest
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.proyectofinal.R
+import com.example.proyectofinal.ViewModel.DispositivoViewModel
+import com.example.proyectofinal.ViewModel.UsuarioViewModel
 import com.example.proyectofinal.utils.generarCodigoQR
 
 @Composable
 fun PerfilUsuario(
     navController: NavController,
-    viewModel: UsuarioViewModel
+    viewModel: UsuarioViewModel,
+    dispositivoViewModel: DispositivoViewModel
 ) {
     val usuario = viewModel.usuarioLogueado
     val scrollState = rememberScrollState()
@@ -39,6 +58,17 @@ fun PerfilUsuario(
 
     LaunchedEffect(Unit) {
         viewModel.obtenerDispositivo(usuario.id)
+    }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit) {
+        navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.getLiveData<Boolean>("equipoActualizado")
+            ?.observe(lifecycleOwner) { actualizado ->
+                if (actualizado) {
+                    viewModel.obtenerDispositivo(usuario.id)
+                }
+            }
     }
 
     Column(
@@ -62,9 +92,41 @@ fun PerfilUsuario(
 
         Text("Dispositivo Registrado", style = MaterialTheme.typography.headlineSmall)
 
-        viewModel.dispositivoRegistrado?.let { dispositivo ->
-            DispositivoCard(dispositivo)
-        } ?: Text("No hay dispositivos registrados.")
+// ✅ ViewModel de Dispositivo (para obtener el equipo actualizado)
+        val dispFactory = remember {
+            com.example.proyectofinal.ViewModel.DispositivoVMFactory(
+                com.example.proyectofinal.Network.RetrofitClient.apiService
+            )
+        }
+        val dispVM: com.example.proyectofinal.ViewModel.DispositivoViewModel =
+            androidx.lifecycle.viewmodel.compose.viewModel(factory = dispFactory)
+
+// ✅ Escucha cambios del equipo actualizado
+        val equipoActualizado by dispVM.equipoActualFlow.collectAsState()
+
+// ✅ Usa el dispositivo guardado o el actualizado
+        val dispositivoRender = remember(viewModel.dispositivoRegistrado, equipoActualizado) {
+            val base = viewModel.dispositivoRegistrado ?: equipoActualizado
+            when (base) {
+                is com.example.proyectofinal.Model.DispositivoRequest -> base
+                is com.example.proyectofinal.Model.EquipoRequest -> com.example.proyectofinal.Model.DispositivoRequest(
+                    id = base.id?.let { java.util.UUID.fromString(it) },
+                    marca = base.marca,
+                    modelo = base.modelo,
+                    serial = base.serial,
+                    fotoUrl = base.foto,
+                    usuarioId = viewModel.usuarioLogueado?.id ?: "" // ✅ pasa el id del usuario logueado
+                )
+                else -> null
+            }
+        }
+
+// ✅ Render del Card
+        if (dispositivoRender != null) {
+            DispositivoCard(dispositivoRender)
+        } else {
+            Text("No hay dispositivos registrados.")
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

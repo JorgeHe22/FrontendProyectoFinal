@@ -46,11 +46,11 @@ interface ApiService {
         @Path("tipo") tipo: String
     ): Response<List<HistorialResponse>>
 
-    @PUT("api/equipos/{id}")
+    @PUT("equipos/{id}")
     suspend fun actualizarEquipo(
         @Path("id") id: String,
-        @Body equipo: EquipoRequest
-    ): Response<EquipoResponse>
+        @Body equipo: DispositivoRequest
+    ): Response<DispositivoRequest>
 
 
 }
