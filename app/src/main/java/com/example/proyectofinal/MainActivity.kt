@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             usuarioId = usuarioId
                         )
-                    }
+                    }  
                     composable("actualizarEquipo") {
                         ActualizarEquipoScreen(
                             navController = navController,
